@@ -1,0 +1,31 @@
+services:
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    container_name: ollama
+
+  ai-agent:
+    build: .
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    expose:
+      - "8000"
+    container_name: ai-agent
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - ai-agent
+    container_name: nginx
+
+volumes:
+  ollama:
